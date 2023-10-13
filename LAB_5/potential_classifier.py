@@ -10,8 +10,8 @@ class PotentialClassifier:
         self.num_attributes = num_attributes
 
         self.function = np.array([], dtype=np.int64)
-        self.local_weights = np.array([], dtype=np.int64)
-        self.base_weight = np.array([1, 4, 4, 16])
+        self.local_potential = np.array([], dtype=np.int64)
+        self.base_potential = np.array([1, 4, 4, 16])
         self.training_set = np.array([], dtype=np.int64)
         self.labels = np.array([], dtype=np.int64)
 
@@ -20,22 +20,22 @@ class PotentialClassifier:
         self.iteration_limit = 10_000
 
         self.training_set, \
-            self.labels, self.local_weights = self.generate_training_set(self.num_vectors,
-                                                                         self.num_attributes,
-                                                                         self.base_weight)
+            self.labels, self.local_potential = self.generate_training_set(self.num_vectors,
+                                                                           self.num_attributes,
+                                                                           self.base_potential)
 
     @staticmethod
-    def generate_training_set(num_vectors, num_attributes, base_weight):
+    def generate_training_set(num_vectors, num_attributes, base_potential):
         flatten_array = np.random.random_integers(-10, 10, num_vectors * num_attributes)
         flatten_array = flatten_array.astype(np.int64)
 
         labels = [0 if x < num_vectors // 2 else 1 for x in range(num_vectors)]
 
         training_set = flatten_array.reshape(num_vectors, num_attributes)
-        local_weights = np.zeros((num_vectors, 4), dtype=np.int64)
+        local_potential = np.zeros((num_vectors, 4), dtype=np.int64)
         for vector_id, vector in enumerate(training_set):
-            local_weights[vector_id] = PotentialClassifier.calc_local_weight(vector, base_weight)
-        return training_set, labels, local_weights
+            local_potential[vector_id] = PotentialClassifier.calc_local_weight(vector, base_potential)
+        return training_set, labels, local_potential
 
     def training_set_to_string(self):
         vector_strings = []
@@ -50,23 +50,24 @@ class PotentialClassifier:
         return f"d(x) = {signs[0]} {abs(self.function[0])} {signs[1]} {abs(self.function[1])}x1 " \
                           f"{signs[2]}{abs(self.function[2])}x2 {signs[3]}{abs(self.function[3])}x1x2 "
 
-    def get_decision_function(self):
-        self.function = np.array(self.local_weights[0], dtype=np.int64)
+    def get_function(self):
+        self.function = np.array(self.local_potential[0], dtype=np.int64)
         iteration = 0
         while not self.is_trained and iteration <= self.iteration_limit:
             self.is_trained = True
             self.ro = 0
             for vector_id, vector in enumerate(self.training_set[:-1]):
-                self.function += self.ro * self.local_weights[vector_id]
+                self.function += self.ro * self.local_potential[vector_id]
                 predicted_cls = self.classify(self.training_set[vector_id + 1], self.function)
                 self.correction(predicted_cls, self.labels[vector_id + 1])
             predicted_cls = self.classify(self.training_set[0], self.function)
             self.correction(predicted_cls, self.labels[0])
-            self.function += self.ro * self.local_weights[0]
+            self.function += self.ro * self.local_potential[0]
             iteration += 1
         return iteration > self.iteration_limit
 
     def correction(self, predicted_cls, real_cls):
+        # if real_cls is 0 it must be bigger and otherwise
         if predicted_cls > real_cls:
             self.ro = 1
             self.is_trained = False

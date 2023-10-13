@@ -71,7 +71,7 @@ class App(Tk):
                                                             self.num_attributes.get())
             self._set_text_to_entry_training_set()
 
-            limit_is_reached = self.potential_classifier.get_decision_function()
+            limit_is_reached = self.potential_classifier.get_function()
             if limit_is_reached:
                 messagebox.showwarning('Предупреждение',
                                        'Превышено число итераций! Допускается неверная классификация.')
