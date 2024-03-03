@@ -1,6 +1,6 @@
 
-# Decision-Making-Methods-and-Algorithms 
-Decision-Making-Methods-and-Algorithms  BSUIR(Методы и алгоритмы принятия решений БГУИР 5 семестр)
+# Decision-Making-Algorithms
+Decision-Making-Algorithms BSUIR(Методы и алгоритмы принятия решений БГУИР 5 семестр)
 >The basics of the theory of pattern recognition and artificial neural networks are described.
 
 ## Completed tasks
